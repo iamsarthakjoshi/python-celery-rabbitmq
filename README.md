@@ -1,5 +1,5 @@
 ## Celery with RabbitMQ
-This is a simple app that demonstrates the features of Celery of Rabbitmq to manage tasks or jobs that need to be handled asynchronously maintaining the order and priority because they are long-running tasks.
+This is a simple app that demonstrates the features of Celery and Rabbitmq to manage tasks or jobs that need to be handled asynchronously maintaining the order and priority because they are long-running tasks.
 
 This project is modified, improved and updated version of [@suzannewang]. 
 
