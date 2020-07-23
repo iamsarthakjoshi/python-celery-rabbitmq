@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Celery Example</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+
+  <h1>Upload a csv file!</h1>
+
+  <div>
+    <form>
+      <input type="file" accept="text/csv">
+      <input type="submit">
+    </form>
+  </div>
+
+  <h2>Results:</h2>
+  <div id="result_0"></div>
+  <div id="result_1"></div>
+
+</body>
+
+<script>
+
+  $("form").on("submit", processForm);
+
+  function processForm(e) {
+      e.preventDefault();
+      
+      var data = new FormData();
+      var input = document.querySelector('input[type="file"]')
+      data.append('file', input.files[0])
+      
+      window.fetch('http://localhost:8889/upload', {
+          method: 'POST',
+          body: data
+      }).then(function(response) {
+          return response.json()
+      }).then(function(data) {
+          checkTask(data.task_list)
+      }).catch(function(error) {
+          console.log('Error', error);
+      });  
+  }
+
+  function checkTask(task_list) {
+    let completion_count = 0
+    let interval = setInterval(()=>{
+      task_list.forEach(function (taskId, index) {
+        window.fetch('http://localhost:8982/task/' + taskId 
+        ).then(function(response) {
+            return response.json()
+        }).then(function(data) {
+            if(data.state === 'PENDING') {
+                $(`#result_${index}`).html('<div>' + data.state + " "+ taskId.toString()+ '</div>')
+            } else if(data.state === 'FAILURE') {
+              $(`#result_${index}`).html('<div>' + 'Failed' + '</div>')
+            } else if(data.state === 'SUCCESS') {
+              $(`#result_${index}`).html('<div>' + data.state + " "+JSON.stringify(data.result) + '</div>')
+            }
+  
+        }).catch(function(error) {
+            console.log('Error', error);
+            $(`#result_${index}`).html('<div>' + error + '</div>')
+            clearInterval(interval)
+        });  
+      });
+    }, 1000)
+    
+  }
+
+</script>
+
+</html>
